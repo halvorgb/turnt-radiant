@@ -9,6 +9,10 @@ build commands
   <build name="Launch turnt in import mode">
     <command>[turnt] --import="[MapFile]"</command>
   </build>
+  <!-- windows only... do cp instead of copy on real OSes -->
+  <build name="[Powershell]: Copy default mapping to mapname.json">
+    <command>powershell -Command "Copy-Item '[EnginePath]map_wip/default_mapping.json' '[EnginePath]map_wip/[MapName].json'"</command>
+  </build>  
   <build name="">
   </build>
   <build name="----">

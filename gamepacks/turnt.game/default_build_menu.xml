@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+build commands
+[RadiantPath]: path to Radiant .. C:\Program Files\Gtkradiant
+[EnginePath]: path to the engine .. C:\TURNT\ C:\Program Files\TURNT\ /usr/local/games/TURNT/
+-->
+<project version="2.0">
+  <var name="turnt">"[EnginePath]turnt"</var>
+  <build name="Launch turnt in import mode">
+    <command>[turnt] --import="[MapFile]"</command>
+  </build>
+  <build name="">
+  </build>
+  <build name="----">
+  </build>
+  <build name="">
+  </build>
+  <build name="---- Keep the game running, use 'Reimport Map' to refresh ----">
+  </build>
+</project>
+
+

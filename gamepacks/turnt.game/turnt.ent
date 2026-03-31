@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<!--
+ Quake3 Arena entity definition file for Q3Radiant
+ Based on draft by Suicide 20 7.30.99 and inolen 9-3-99
+ Upgraded by Eutectic: eutectic@ritualistic.com
+ (visible models added by raYGunn - paths provided by Suicide 20)
+ (terrain information added to func_group entity by Paul Jaquays)
+ Q3Map2 entities/keys added by ydnar
+ Additional Q3Map2 and Q3A PR 1.32 entities/keys added by Obsidian
+ Entities.def for GtkRadiant 1.4 and ZeroRadiant 1.6
+ Entities.ent for GtkRadiant 1.5
+ Version: 1.7.3
+ Updated: 2011-03-02
+-->
+<classes>
+
+<list name="EntIndex">
+  <item name="-" value=""/>
+  <item name="Start" value="start_timer"/>
+  <item name="Stop" value="stop_timer"/>
+  <item name="Checkpoint 1" value="checkpoint1"/>
+  <item name="Checkpoint 2" value="checkpoint2"/>
+  <item name="Checkpoint 3" value="checkpoint3"/>
+  <item name="Checkpoint 4" value="checkpoint4"/>
+  <item name="Checkpoint 5" value="checkpoint5"/>
+  <item name="Checkpoint 6" value="checkpoint6"/>
+  <item name="Checkpoint 7" value="checkpoint7"/>
+  <item name="Checkpoint 8" value="checkpoint8"/>
+  <item name="Checkpoint 9" value="checkpoint9"/>
+</list>
+
+<!--
+=============================================================================
+-->
+
+<group name="func_group" color="0 .4375 .7">
+This is not an entity as such. It is strictly an editor utility to group world brushes and patches together for convenience (selecting, moving, copying, applying special compilation parameters etc). You cannot group entities with this. Func_group contents is merged into worldspawn entity during compilation process.
+</group>
+
+<!--
+=============================================================================
+-->
+
+<point name="info_player_start" color="1 0 0" box="-16 -16 -24 16 16 32">
+Player spawn location. It works in Quake III Arena, but it is not used in the Id maps. Use info_player_deathmatch instead.
+-------- KEYS --------
+<angle key="angle" name="Yaw Angle">Direction in which player will look when spawning in the game.</angle>
+<angles key="angles" name="Pitch Yaw Roll">Pitch, yaw and roll angles of sight direction.</angles>
+</point>
+
+<!--
+=============================================================================
+-->
+
+<group name="trigger_multiple" color=".5 .5 .5">
+Variable size repeatable trigger. It will fire the entities it targets when touched by player. Can be made to operate like a trigger_once entity by setting the "wait" key to -1. It can also be activated by another trigger that targets it.
+-------- KEYS --------
+<!--
+<real key="wait" name="Repeat Time" value="0.5">Time in seconds until trigger becomes re-triggerable after it's been touched (default 0.5, -1 = trigger once).</real>
+<real key="random" name="Repeat Time Variance" value="0">Random time variance in seconds added or subtracted from "wait" delay (default 0 - see notes).</real>
+-->
+<EntIndex key="target" name="Entity">Alternative to quickly select the entity</EntIndex>
+<target key="target" name="Target">This points to the entity to activate.</target>
+</group>
+
+<!--
+=============================================================================
+
+WORLDSPAWN ENTITY
+
+=============================================================================
+-->
+
+<group name="worldspawn" color="0 0 0">
+Entity, which stores regular static map primitives (brushes and patches).
+-------- KEYS --------
+<string key="message" name="Logon Message">Text to print at user logon. Used for name of level.</string>
+<sound key="music" name="Music File">Path/name of looping .wav file used for level's music (e.g. music/sonic5.wav). Specifying two files, like 'music/fla22k_04_intro.wav music/fla22k_04_loop.wav' will make former to play once and latter looped then.</sound>
+<real key="gravity" name="Gravity" value="800">Gravity of level (default normal gravity: 800).</real>
+-------- Q3MAP2 KEYS --------
+<integer key="gridsize" name="Dynamic Light Granularity" value="64 64 128">Granularity of the lightgrid, created by q3map, which is used to dynamically light certain game objects, like players and items. Value is three integers separated by spaces, representing number of units between grid points in X Y Z. Default gridsize value is 64 64 128. Use larger powers of 2 to reduce BSP size and compile time on very large maps.</integer>
+<integer key="_blocksize" name="BSP Block Size" value="1024 1024 1024">Map compiler splits the BSP tree along axial planes (X, Y and Z) for optimization. It does it as often, as specified in _blocksize key for respective axis (in units) (default 1024 1024 1024, 0 = disable, setting single value 'N' equals to setting 'N N N'). I.e. lower values result in more splits and vice versa. Increase the blocksize using larger powers of 2 to reduce compile times on very large maps with a low structural brush density. Maps, having flat architecture, might work better with horizontal splits disabled ('N N 0').</integer>
+<real key="_ambient" name="Ambient Intensity" value="0">Adds a constant value to overall lighting (default 0, range 0 - 255). Only recommended use is small values for cosmetic purposes, as high values will have a tendency to flatten out variations in light and shade.</real>
+<color key="_color" name="Ambient Color" value="1 1 1">RGB color value for ambient and other global light parameters (default is 1 1 1).</color>
+<real key="_minlight" name="Min Lightmap Intensity" value="0">Minimum light value, levelwide. Uses the _color key to set color. Since it does not add unlike ambient, but overrides existing light values, affected areas will get flat constant light. Therefore use is highly not recommended!</real>
+<real key="_minvertexlight" name="Min Vertex Intensity" value="0">Minimum vertex lighting, levelwide.</real>
+<real key="_mingridlight" name="Min Dynamic Intensity" value="0">Minimum lightgrid (dynamic entity lighting) levelwide.</real>
+<string key="_floodlight" name="FloodLight" value="240 240 255 1024 128 1">A sextet of values "r g b dist intensity directional_power" to set global floodlight parameters (good defaults are 240 240 255 1024 128 1). Floodlight effect is sort of Ambient Occlusion.</string>
+<boolean key="_keeplights" name="Keep Light Entities">Keep light entities in the BSP. Normally stripped out by the BSP process and read from the .map file by the lighting phase.</boolean>
+<boolean key="_noshadersun" name="Ignore Shader Sun">Ignore q3map_sun/sun directives in sky shaders and ONLY use entity sun lights.</boolean>
+<real key="_farplanedist" name="Far Clip Distance">Limit on how many units the vis phase of compilation can see. Used in combination with level-wide fog, it can help reduce r_speeds on large, open maps.</real>
+<texture key="_foghull" name="Fog Hull Shader">Shader to use for "fog hull". Foghull shader should be a sky shader. Omit the "textures/" prefix.</texture>
+<real key="_lightmapscale" name="Lightmap Scale" value="1">Floating point value, scaling the resolution of lightmaps on brushes/patches in the world. Can be overridden in func_group (or other entities) (default 1.0).</real>
+<integer key="_castshadows" name="Shadow Caster Level" value="1">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. &gt; 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
+<integer key="_receiveshadows" name="Shadow Receiver Level" value="1">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. &gt; 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
+<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: Omit the "textures/" prefix.</texture> Overridable in entities.
+<string key="_styleNalphaGen" name="Style Light alphaGen">*IMPORTANT* Replace "N" in the key "_styleNalphaGen" with an integer between 1 and 31 as your style index. Values takes standard shader waveform functions (e.g. wave sin 0.5 0.3 0.25 1.5)</string>
+<string key="_styleNrgbGen" name="Style Light rgbGen">*IMPORTANT* Replace "N" in the key "_styleNrgbGen" with an integer between 1 and 31 as your style index. Values take standard shader waveform functions (e.g. wave sin 0.5 0.3 0.25 1.5)</string>
+-------- Q3MAP2 TERRAIN KEYS --------
+<texture key="_indexmap" name="Terrain Blending Map">Path/name for the art file used to guide the mapping of textures on the terrain surface.</texture>
+<integer key="_layers" name="Terrain Layers">Number of unique root shaders that will be used on the terrain.</integer>
+<texture key="_shader" name="Terrain MetaShader">Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.</texture>
+</group>
+
+</classes>

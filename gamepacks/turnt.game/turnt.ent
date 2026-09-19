@@ -29,6 +29,44 @@
   <item name="Checkpoint 9" value="checkpoint9"/>
 </list>
 
+<list name="velocityMode">
+  <item name="Preserve World" value="preserve_world"/>
+  <item name="Preserve Local" value="preserve_local"/>
+  <item name="Zero" value="zero"/>
+  <item name="Set" value="set"/>
+</list>
+
+<list name="lookYawMode">
+  <item name="Preserve" value="preserve"/>
+  <item name="Rotate By Delta" value="rotate_by_delta"/>
+  <item name="Set To Destination" value="set_to_destination"/>
+  <item name="Set" value="set"/>
+</list>
+
+<list name="lookPitchMode">
+  <item name="Preserve" value="preserve"/>
+  <item name="Rotate By Delta" value="rotate_by_delta"/>
+  <item name="Set To Destination" value="set_to_destination"/>
+  <item name="Set" value="set"/>
+</list>
+
+<list name="jumppadMode">
+  <item name="Projectile" value="projectile"/>
+  <item name="Set Velocity" value="set_velocity"/>
+  <item name="Add Velocity" value="add_velocity"/>
+</list>
+
+<list name="axisMaskIndex">
+  <item name="- (none)" value="0"/>
+  <item name="X" value="1"/>
+  <item name="Y" value="2"/>
+  <item name="X, Y" value="3"/>
+  <item name="Z" value="4"/>
+  <item name="X, Z" value="5"/>
+  <item name="Y, Z" value="6"/>
+  <item name="X, Y, Z" value="7"/>
+</list>
+
 <!--
 =============================================================================
 -->
@@ -62,6 +100,89 @@ Variable size repeatable trigger. It will fire the entities it targets when touc
 <EntIndex key="target" name="Entity">Alternative to quickly select the entity</EntIndex>
 <target key="target" name="Target">This points to the entity to activate.</target>
 </group>
+
+<!--
+=============================================================================
+
+TRIGGER ENTITIES
+
+All triggers below are invisible volumes. The brush mesh is hidden at
+import time; the player never sees it. Use separate visible geometry (a
+dais, a glowing texture, a lava pit shader) for the visual cue.
+
+=============================================================================
+-->
+
+<group name="trigger_kill" color=".5 .5 .5">
+Invisible volume. Entering it instantly respawns the player at the start spawn (same effect as the "in_respawn" keybind). No fields.
+Equivalent to a Q3 trigger_hurt with massive damage, or the indirect trigger_multiple target=foo + target_kill targetname=foo chain - both the direct form and the chain are supported.
+</group>
+
+<!--
+=============================================================================
+-->
+
+<group name="trigger_teleport" color=".5 .5 .5">
+Invisible volume. Teleports the player to a target_position (or misc_teleporter_dest).
+-------- KEYS --------
+<target key="target" name="Target">Targetname of the destination (required).</target>
+<velocityMode key="velocity_mode_x" name="Velocity Mode X" value="preserve_local">Per-axis carry-over mode for the X axis. preserve_world: keep the world-space component. preserve_local: rotate from entry-local into dest-local (Q3 default; preserves "forward speed"). zero: kill this axis. set: overwrite with velocity_set. Default: preserve_local.</velocityMode>
+<velocityMode key="velocity_mode_y" name="Velocity Mode Y" value="preserve_local">Per-axis carry-over mode for the Y axis. See Velocity Mode X for the mode descriptions. Default: preserve_local.</velocityMode>
+<velocityMode key="velocity_mode_z" name="Velocity Mode Z" value="preserve_local">Per-axis carry-over mode for the Z axis. See Velocity Mode X for the mode descriptions. Default: preserve_local.</velocityMode>
+<string key="velocity_set" name="Velocity Set" value="0 0 0">"X Y Z" velocity used when any velocity mode above is "set", interpreted in the destination-local frame. Default: 0 0 0.</string>
+<lookYawMode key="look_yaw_mode" name="Look Yaw Mode" value="set_to_destination">Yaw carry-over mode. preserve: leave the player's current angle alone. rotate_by_delta: add (dest_angle - entry_angle). set_to_destination: snap to the destination's angle (Q3 default - face the way the dest points). set: overwrite with the yaw in Look Set. Default: set_to_destination.</lookYawMode>
+<lookPitchMode key="look_pitch_mode" name="Look Pitch Mode" value="preserve">Pitch carry-over mode. preserve: leave the player's current angle alone (Q3 default - pitch unchanged). rotate_by_delta: add (dest_angle - entry_angle). set_to_destination: snap to the destination's angle. set: overwrite with the pitch in Look Set. Default: preserve.</lookPitchMode>
+<string key="look_set" name="Look Set" value="0 0">"yaw pitch" in radians, used when a look mode above is "set". Default: 0 0.</string>
+</group>
+
+<!--
+=============================================================================
+-->
+
+<group name="trigger_push" color=".5 .5 .5">
+Invisible volume. Q3-compatible jump pad. Always projectile mode - computes the closed-form launch velocity that lands the player on a target_position under current gravity.
+This is just trigger_jumppad locked to mode=projectile. Use it if you want strict Q3 semantics with nothing to misconfigure.
+-------- KEYS --------
+<target key="target" name="Target">Targetname of the target_position apex (required).</target>
+</group>
+
+<!--
+=============================================================================
+-->
+
+<group name="trigger_jumppad" color=".5 .5 .5">
+Invisible volume. TURNT-native jump pad with three modes.
+Examples: pure vertical boost preserving horizontal speed is mode=add_velocity, velocity_value=0 600 0, axis_mask=2 (Y only). Hard horizontal slam east is mode=set_velocity, velocity_value=1500 0 0, axis_mask=5 (X+Z). Identical to Q3 trigger_push is mode=projectile, target=&lt;apex&gt;.
+-------- KEYS --------
+<target key="target" name="Target">Targetname of the target_position apex. Required for projectile mode, ignored otherwise.</target>
+<jumppadMode key="mode" name="Mode" value="projectile">projectile: Q3 trigger_push behavior, requires Target. set_velocity: overwrite the player's velocity per-axis (Axis Mask). add_velocity: add to the player's velocity per-axis (Axis Mask). Default: projectile.</jumppadMode>
+<string key="velocity_value" name="Velocity Value" value="0 600 0">"X Y Z" world-frame velocity, used in set_velocity/add_velocity modes. Default: 0 600 0.</string>
+<axisMaskIndex key="axis_mask" name="Axis Mask" value="7">Bitmask selecting which axes Velocity Value applies to in set_velocity/add_velocity modes: X=1, Y=2, Z=4. Default: 7 (all axes).</axisMaskIndex>
+</group>
+
+<!--
+=============================================================================
+-->
+
+<point name="target_position" color="1 0 1" box="-8 -8 -8 8 8 8">
+Destination point for trigger_teleport, trigger_push, and trigger_jumppad (projectile mode). The entity's position is used as-is; its rotation drives Q3 velocity rotation (entry-local to dest-local) and set_to_destination yaw/pitch on teleporters.
+-------- KEYS --------
+<targetname key="targetname" name="Target Name">The activating trigger's Target points to this.</targetname>
+<angle key="angle" name="Yaw Angle">Yaw aiming angle of the destination.</angle>
+<angles key="angles" name="Pitch Yaw Roll">Pitch, yaw, and roll angles of the destination.</angles>
+</point>
+
+<!--
+=============================================================================
+-->
+
+<point name="misc_teleporter_dest" color="1 0 1" box="-8 -8 -8 8 8 8">
+Alias for target_position. Destination point for trigger_teleport, trigger_push, and trigger_jumppad (projectile mode).
+-------- KEYS --------
+<targetname key="targetname" name="Target Name">The activating trigger's Target points to this.</targetname>
+<angle key="angle" name="Yaw Angle">Yaw aiming angle of the destination.</angle>
+<angles key="angles" name="Pitch Yaw Roll">Pitch, yaw, and roll angles of the destination.</angles>
+</point>
 
 <!--
 =============================================================================
